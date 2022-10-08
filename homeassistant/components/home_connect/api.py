@@ -11,6 +11,7 @@ from homeassistant import config_entries, core
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import (
     ATTR_DEVICE_CLASS,
+    ATTR_DEVICE_ID,
     ATTR_ICON,
     CONF_DEVICE,
     CONF_ENTITIES,
@@ -33,6 +34,7 @@ from .const import (
     BSH_OPERATION_STATE,
     BSH_POWER_OFF,
     BSH_POWER_STANDBY,
+    HOME_CONNECT_EVENT,
     SIGNAL_UPDATE_ENTITIES,
 )
 
@@ -113,6 +115,7 @@ class HomeConnectDevice:
         """Initialize the device class."""
         self.hass = hass
         self.appliance = appliance
+        self.device_id = None
 
     def initialize(self):
         """Fetch the info needed to initialize the device."""
@@ -135,11 +138,22 @@ class HomeConnectDevice:
             }
         self.appliance.listen_events(callback=self.event_callback)
 
-    def event_callback(self, appliance):
+    def event_callback(self, appliance, event_type, data):
         """Handle event."""
         _LOGGER.debug("Update triggered on %s", appliance.name)
         _LOGGER.debug(self.appliance.status)
         dispatcher_send(self.hass, SIGNAL_UPDATE_ENTITIES, appliance.haId)
+
+        for item in data:
+            event = {
+                ATTR_DEVICE_ID: self.device_id,
+                ATTR_KEY: item,
+                ATTR_VALUE: data[item]["value"],
+            }
+            if "unit" in data[item]:
+                event[ATTR_UNIT] = data[item]["unit"]
+
+            self.hass.bus.async_fire(HOME_CONNECT_EVENT, event)
 
 
 class DeviceWithPrograms(HomeConnectDevice):

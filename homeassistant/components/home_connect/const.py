@@ -5,6 +5,8 @@ DOMAIN = "home_connect"
 OAUTH2_AUTHORIZE = "https://api.home-connect.com/security/oauth/authorize"
 OAUTH2_TOKEN = "https://api.home-connect.com/security/oauth/token"
 
+HOME_CONNECT_EVENT = "home_connect_event"
+
 BSH_POWER_STATE = "BSH.Common.Setting.PowerState"
 BSH_POWER_ON = "BSH.Common.EnumType.PowerState.On"
 BSH_POWER_OFF = "BSH.Common.EnumType.PowerState.Off"
